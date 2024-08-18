@@ -19,7 +19,7 @@ products = {
     15: {"name": "Tie", "size": "one size", "style": "formal", "color": "navy", "price": 29.99, "category": "accessories", "description": "Silk tie for professional attire."}
 }
 
-# User profile 
+# User profile
 user_profile = {
     "size": "",
     "preferred_styles": [],
@@ -29,114 +29,56 @@ user_profile = {
 # Function to get user profile information
 def get_user_profile():
     user_profile["size"] = input("Enter your size (e.g., S, M, L): ")
+
     while True:
-        style = input("Enter a preferred style (or 'done' to finish): ")
-        if style.lower() == 'done':
+        print("\nChoose your preferred styles (enter numbers separated by commas):")
+        print("1. Casual")
+        print("2. Streetwear")
+        print("3. Formal")
+
+        choices = input("Enter your choices: ")
+        if choices:
+            for choice in choices.split(','):
+                choice = choice.strip()
+                if choice == '1':
+                    user_profile["preferred_styles"].append("casual")
+                elif choice == '2':
+                    user_profile["preferred_styles"].append("streetwear")
+                elif choice == '3':
+                    user_profile["preferred_styles"].append("formal")
             break
-        user_profile["preferred_styles"].append(style)
+        else:
+            print("Please enter at least one choice.")
 
-# Function to simulate the try-on experience 
-def try_on(product_id):
-    product = products[product_id]
-    feedback = []
-
-    # Size, style, price & category feedback 
-    if product["size"] == user_profile["size"]:
-        feedback.append("The item fits you perfectly!")
-    elif product["size"] < user_profile["size"]:
-        feedback.append("You might need a larger size.")
-    else:
-        feedback.append("You might need a smaller size.")
-
-    if product["style"] in user_profile["preferred_styles"]:
-        feedback.append("This style matches your preferences!")
-
-    if product["price"] < 30:
-        feedback.append("This is a great deal!")
-    elif product["price"] > 50:
-        feedback.append("This is a premium item.")
-
-    if product["category"] == "clothing":
-        feedback.append("Imagine how stylish you'll look in this!")
-    elif product["category"] == "footwear":
-        feedback.append("These will definitely up your shoe game!")
-
-    return feedback
-
-# Function to provide recommendations 
-def get_recommendations():
-    filtered_products = [id for id, product in products.items() if product["style"] in user_profile["preferred_styles"]]
-    
-    if filtered_products:
-        recommended_products = random.sample(filtered_products, min(2, len(filtered_products))) 
-        print("\nRecommended products for you:")
-        for id in recommended_products:
-            print(f"{id}. {products[id]['name']}")
-    else:
-        print("\nNo recommendations based on your preferred styles at the moment.")
-
-# Function to add/remove items from the virtual cart & view it
-def add_to_cart(product_id):
-    if product_id in products:
-        user_profile["virtual_cart"].append(product_id)
-        print(f"{products[product_id]['name']} added to your cart!")
-    else:
-        print("Invalid product ID. Please try again.")
-
-def remove_from_cart(product_id):
-    if product_id in user_profile["virtual_cart"]:
-        user_profile["virtual_cart"].remove(product_id)
-        print(f"{products[product_id]['name']} removed from your cart!")
-    else:
-        print("Item not found in your cart.")
-
-def view_cart():
-    if user_profile["virtual_cart"]:
-        print("\nYour Cart:")
-        for id in user_profile["virtual_cart"]:
-            print(f"- {products[id]['name']} (${products[id]['price']:.2f})")
-    else:
-        print("\nYour cart is empty.")
-
-# Function to search for products by keyword
-def search_products(keyword):
-    matching_products = []
+# Function to search for products by ID
+def search_products():
+    # Display all products in the catalog
+    print("\nProduct Catalog:")
     for id, product in products.items():
-        if keyword.lower() in product["name"].lower() or keyword.lower() in product["style"].lower() or keyword.lower() in product["category"].lower():
-            matching_products.append(id)
+        print(f"{id}. {product['name']} - {product['description']} (Style: {product['style']}, Price: ${product['price']:.2f})")
 
-    if matching_products:
-        print("\nMatching products:")
-        for id in matching_products:
-            print(f"{id}. {products[id]['name']}")
+    # Prompt the user to enter a product ID to search for
+    product_id = input("\nEnter the product ID to view details or 'b' to go back: ")
+
+    # Validate input and display product details if the ID is valid
+    if product_id.isdigit():
+        product_id = int(product_id)
+        if product_id in products:
+            product = products[product_id]
+            print(f"\nProduct Details for ID {product_id}:")
+            print(f"Name: {product['name']}")
+            print(f"Size: {product['size']}")
+            print(f"Style: {product['style']}")
+            print(f"Color: {product['color']}")
+            print(f"Price: ${product['price']:.2f}")
+            print(f"Category: {product['category']}")
+            print(f"Description: {product['description']}")
+        else:
+            print("Invalid product ID. Please try again.")
+    elif product_id.lower() == 'b':
+        return  # Go back to the main menu
     else:
-        print("\nNo products found matching your search.")
-
-# Function to calculate the total price & simulate checkout
-def calculate_total_price():
-    total = 0
-    for id in user_profile["virtual_cart"]:
-        total += products[id]["price"]
-    return total
-
-def checkout():
-    if user_profile["virtual_cart"]:
-        total_price = calculate_total_price()
-        print("\nCheckout Summary:")
-        view_cart()
-        print(f"\nTotal Price: ${total_price:.2f}")
-
-        while True:
-            confirm = input("Confirm checkout? (y/n): ")
-            if confirm.lower() == 'y':
-                print("Thank you for shopping with us!")
-                user_profile["virtual_cart"] = []  
-                break
-            elif confirm.lower() == 'n':
-                print("Checkout cancelled.")
-                break
-            else:
-                print("Invalid input. Please enter 'y' or 'n'.")
+        print("Invalid input. Please enter a valid product ID or 'b' to go back.")
 
 # Main function to run the user interaction
 def main():
@@ -145,18 +87,23 @@ def main():
 
     while True:
         print("\nMenu:")
-        print("1. Try on a product")
+        print("1. Search products")
         print("2. Get recommendations")
-        print("3. Add to cart")
-        print("4. Remove from cart")
-        print("5. View cart")
-        print("6. Search products")
+        print("3. Try on a product")
+        print("4. Add to cart")
+        print("5. Remove from cart")
+        print("6. View cart")
         print("7. Checkout")
         print("8. Exit")
+        print("9. View Product Catalog")
 
-        choice = input("Enter your choice (1-8): ")
+        choice = input("Enter your choice (1-9): ")
 
         if choice == '1':
+            search_products()
+        elif choice == '2':
+            get_recommendations()
+        elif choice == '3':
             product_id = int(input("Enter product ID to try on: "))
             if product_id in products:
                 feedback = try_on(product_id)
@@ -165,26 +112,23 @@ def main():
                     print(f"- {item}")
             else:
                 print("Invalid product ID. Please try again.")
-        elif choice == '2':
-            get_recommendations()
-        elif choice == '3':
+        elif choice == '4':
             product_id = int(input("Enter product ID to add to cart: "))
             add_to_cart(product_id)
-        elif choice == '4':
+        elif choice == '5':
             product_id = int(input("Enter product ID to remove from cart: "))
             remove_from_cart(product_id)
-        elif choice == '5':
-            view_cart()
         elif choice == '6':
-            keyword = input("Enter keyword to search for products: ")
-            search_products(keyword)
+            view_cart()
         elif choice == '7':
             checkout()
         elif choice == '8':
             print("Thank you for visiting! Goodbye.")
             break
+        elif choice == '9':
+            view_product_catalog()
         else:
-            print("Invalid choice. Please enter a number between 1 and 8.")
+            print("Invalid choice. Please enter a number between 1 and 9.")
 
 if __name__ == "__main__":
     main()
