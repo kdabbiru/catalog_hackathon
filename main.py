@@ -80,6 +80,73 @@ def search_products():
     else:
         print("Invalid input. Please enter a valid product ID or 'b' to go back.")
 
+# Function to get product recommendations based on user profile
+def get_recommendations():
+    print("\nRecommended Products:")
+    for id, product in products.items():
+        if (product["style"] in user_profile["preferred_styles"] or not user_profile["preferred_styles"]) and (product["size"] == user_profile["size"] or product["size"] == "one size"):
+            print(f"{id}. {product['name']} - {product['description']} (Style: {product['style']}, Price: ${product['price']:.2f})")
+    if not user_profile["preferred_styles"]:
+        print("No style preferences set. Showing all products based on size.")
+
+# Function to simulate trying on a product
+def try_on(product_id):
+    if product_id in products:
+        product = products[product_id]
+        feedback = [
+            f"Product Name: {product['name']}",
+            f"Style: {product['style']}",
+            f"Color: {product['color']}",
+            f"Price: ${product['price']:.2f}",
+            "Try-on feedback: Looks great!"
+        ]
+        return feedback
+    else:
+        return ["Invalid product ID."]
+
+# Function to add a product to the cart
+def add_to_cart(product_id):
+    if product_id in products:
+        user_profile["virtual_cart"].append(product_id)
+        print(f"Product ID {product_id} added to cart.")
+    else:
+        print("Invalid product ID. Please try again.")
+
+# Function to remove a product from the cart
+def remove_from_cart(product_id):
+    if product_id in user_profile["virtual_cart"]:
+        user_profile["virtual_cart"].remove(product_id)
+        print(f"Product ID {product_id} removed from cart.")
+    else:
+        print("Product ID not in cart.")
+
+# Function to view the cart
+def view_cart():
+    if user_profile["virtual_cart"]:
+        print("\nYour Cart:")
+        for product_id in user_profile["virtual_cart"]:
+            product = products[product_id]
+            print(f"ID: {product_id}, Name: {product['name']}, Price: ${product['price']:.2f}")
+    else:
+        print("Your cart is empty.")
+
+# Function to checkout
+def checkout():
+    if user_profile["virtual_cart"]:
+        total = sum(products[product_id]['price'] for product_id in user_profile["virtual_cart"])
+        print(f"\nCheckout Summary:")
+        print(f"Total amount: ${total:.2f}")
+        print("Thank you for your purchase!")
+        user_profile["virtual_cart"].clear()  # Clear the cart after checkout
+    else:
+        print("Your cart is empty. Add items to the cart before checking out.")
+
+# Function to view the product catalog
+def view_product_catalog():
+    print("\nProduct Catalog:")
+    for id, product in products.items():
+        print(f"{id}. {product['name']} - {product['description']} (Style: {product['style']}, Price: ${product['price']:.2f})")
+
 # Main function to run the user interaction
 def main():
     print("Welcome to the Virtual Shopping Experience!")
